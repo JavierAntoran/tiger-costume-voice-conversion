@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 import torch
 import torch .nn as nn
-from src.utils import *
+from src.regression_utils import *
 
 from autoencoder import Autoencoder
 from feed_forward import feed_forward
