@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-x_file = 'a63.wav';
+x_file = 'j21.wav';
 
 
 
@@ -16,17 +16,21 @@ x = x(:,1);
 % figure
 % plot((1:length(x))/fs, x)
 
-L1 = length(x);
+
 T1 = 50*1e-3;
 T2 = 10*1e-3; 
 N1 = floor(T1*fs);%muestras por bloque
 D1 = floor(T2*fs);
+
+
+
+L1 = length(x);
 indice  = 1:N1-(N1-D1):L1;
-noise_power = min([max([sum(abs(x(1:floor(1*fs/2)).^2)), 0.06])]);
+noise_power = min([max([sum(abs(x(1:floor(1*fs/2)).^2)), 0.06]),0.06]);
 
 fprintf('np=%.2f\n',noise_power)
-noise_th1 = 180*noise_power;
-noise_th2 = 30*noise_power;
+noise_th1 = 150*noise_power;
+noise_th2 = 15*noise_power;
 
 sflag = 0;
 clip  = zeros(size(x));
@@ -46,19 +50,19 @@ for i = 2:(length(indice)-1)
        clip(indice(i-wp_buff_len)) = sum(wp_buff);
        chunks(indice(i-wp_buff_len)) = 1;
    elseif (sum(wp_buff) < noise_th2 && sflag==1 )
-        clip(indice(i)+N1) = sum(wp_buff);
+        clip(min([indice(i)+N1, L1])) = sum(wp_buff);
         sflag = 0;
-        chunks(indice(i)+N1) = 1;
+        chunks(min([indice(i)+N1, L1])) = 1;
    end
    wp(indice(i)) = window_power;
 end
 
 close all
 figure
-plot((1:length(x))/fs, x)
+plot((1:length(x)), x)
 hold on
 yyaxis right
-plot((1:length(x))/fs, clip)
+plot((1:length(x)), clip)
 %plot((1:length(x))/fs, wp+eps)
 %plot((1:length(x))/fs, chunks*80)
 
@@ -68,7 +72,6 @@ fprintf('th2=%.2f\n',noise_th2)
 
 fprintf('MaxWP=%.2f\n',max(wp))
 fprintf('Chunks=%d\n',length(find(chunks)))
-
 %%
 
 chidx = find(chunks);
@@ -81,6 +84,13 @@ for i = 1:2:length(chidx)
 end
 
 close all
+%% Save files
+path = './palabras/';
+
+audiowrite(filename,y,Fs)
+
+
+
 %%
 
 max_chunk_dur = max(chunks(2:2:end)-chunks(1:2:end));
