@@ -1,67 +1,86 @@
 clear all
 close all
+clc
 
-file1 = '/home/almul0/Universidad/ityst/17-18/30357 - Laboratorio de señal y comunicaciones/TP61/tiger-costume/sources/javi_uno_16K.wav';
-file2 = '/home/almul0/Universidad/ityst/17-18/30357 - Laboratorio de señal y comunicaciones/TP61/tiger-costume/sources/alberto_uno_16K.wav';
+x_file = 'a63.wav';
 
 
-[x_javi,fs] = audioread(file1);
-[x_alberto,fs] = audioread(file2);
+
+[x,fs] = audioread(x_file);
 
 N= 512;
 W = hamming(N);
 
+x = x(:,1);
 
-x_javi = x_javi(:,1);
-x_alberto = x_alberto(:,1);
+% figure
+% plot((1:length(x))/fs, x)
 
-s = x_javi;
-
-
-plot((1:length(s))/fs, s)
-
-L1 = length(s);
-T1 = 300*1e-3;
+L1 = length(x);
+T1 = 50*1e-3;
 T2 = 10*1e-3; 
 N1 = floor(T1*fs);%muestras por bloque
 D1 = floor(T2*fs);
 indice  = 1:N1-(N1-D1):L1;
+noise_power = min([max([sum(abs(x(1:floor(1*fs/2)).^2)), 0.06])]);
 
-noise_power = sum(abs(s(1:floor(1*fs/2)).^2));
-display(noise_power)
-noise_th1 = 100*noise_power;
-noise_th2 = 100*noise_power;
-display(noise_th1 )
-display(noise_th2)
+fprintf('np=%.2f\n',noise_power)
+noise_th1 = 180*noise_power;
+noise_th2 = 30*noise_power;
+
 sflag = 0;
-clip  = zeros(size(s));
-wp = zeros(size(s));
-chunks = [];
+clip  = zeros(size(x));
+wp = zeros(size(x));
+chunks = zeros(size(x));
+
+wp_buff_len = 10;
+wp_buff = zeros(1,wp_buff_len);
+
+
 for i = 2:(length(indice)-1)    
-   fin = min(indice(i)+N1, length(s));
-   window_power = sum(abs(s(indice(i):fin).^2));
-   if (window_power > noise_th1 && sflag==0)
+   fin = min(indice(i)+N1, length(x));
+   window_power = sum(abs(x(indice(i):fin).^2));
+   wp_buff = [wp_buff(2:end) window_power];
+   if (sum(wp_buff) > noise_th1 && sflag==0)
        sflag = 1;
-       clip(indice(i)) = window_power;
-       chunks = [ chunks indice(i)];
-   elseif (window_power < noise_th2 && sflag==1 )
-        clip(indice(i)+N1) = window_power;
+       clip(indice(i-wp_buff_len)) = sum(wp_buff);
+       chunks(indice(i-wp_buff_len)) = 1;
+   elseif (sum(wp_buff) < noise_th2 && sflag==1 )
+        clip(indice(i)+N1) = sum(wp_buff);
         sflag = 0;
-        chunks = [ chunks indice(i)+N1 ];
+        chunks(indice(i)+N1) = 1;
    end
    wp(indice(i)) = window_power;
 end
+
 close all
 figure
-plot((1:length(s))/fs, s)
+plot((1:length(x))/fs, x)
 hold on
 yyaxis right
-plot((1:length(s))/fs, clip)
-%plot((1:length(s))/fs, wp+eps)
-legend(sprintf('th1=%.2f',noise_th1),sprintf('th2=%.2f',noise_th2))
+plot((1:length(x))/fs, clip)
+%plot((1:length(x))/fs, wp+eps)
+%plot((1:length(x))/fs, chunks*80)
 
-display(max(wp))
-display(length(chunks))
+legend('signal','cl')
+fprintf('th1=%.2f\n',noise_th1)
+fprintf('th2=%.2f\n',noise_th2)
+
+fprintf('MaxWP=%.2f\n',max(wp))
+fprintf('Chunks=%d\n',length(find(chunks)))
+
+%%
+
+chidx = find(chunks);
+figure
+for i = 1:2:length(chidx)
+   plot(x(chidx(i):chidx(i+1)))
+   ylim([-1 1])
+   soundsc(x(chidx(i):chidx(i+1)),fs)
+   pause
+end
+
+close all
 %%
 
 max_chunk_dur = max(chunks(2:2:end)-chunks(1:2:end));
