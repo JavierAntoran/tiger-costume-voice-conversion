@@ -64,6 +64,7 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
     result_ = np.empty((0, input_dim))
     sq_Betas = np.empty((0, input_dim))
     # ----
+    torch.nograd()
     tic = time.time()
     for ind in generate_ind_batch(nb_samples_test, batch_size, random=False):
         out, sq_Beta = net.predict(x[ind])
