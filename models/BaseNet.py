@@ -40,7 +40,12 @@ class BaseNet(object):
 
     def load(self, filename):
         cprint('c', 'Reading %s\n' % filename)
-        state_dict = torch.load(filename)
+
+        if not torch.cuda.is_available():
+            state_dict = torch.load(filename, map_location=lambda storage, loc: storage)
+        else:
+            state_dict = torch.load(filename)
+
         self.epoch = state_dict['epoch']
         self.lr = state_dict['lr']
         self.model = state_dict['model']

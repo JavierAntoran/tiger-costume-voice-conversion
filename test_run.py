@@ -7,6 +7,7 @@ import numpy as np
 from src.mlpg import *
 from src.regression_utils import *
 from models.BaseNet import Net
+from models.ff_probabilistic_mlpg import Nloss_GD, ff_mlpg
 ######
 
 def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat'):
@@ -34,7 +35,7 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
     # net dims
     input_dim = x.shape[1]
     output_dim = 2 * input_dim
-    n_hid = int(5*input_dim)
+    n_hid = int(2*input_dim)
     lr = 1e-4
     weight_decay = 1e-7
     use_cuda = torch.cuda.is_available()
@@ -47,7 +48,7 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
 
     # --------------------
     net = Net('ff_mlpg', input_dim, output_dim, n_hid, lr=lr, weight_decay=weight_decay, cuda=use_cuda)
-    net.load(savedir + 'theta_best_mlpg.dat')
+    net.load(savedir)
 
     ## ---------------------------------------------------------------------------------------------------------------------
     # test
@@ -79,9 +80,9 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
 
     # Un-norm features without setting null f0
     # TODO: dont apply derivatives to F0
-    result_un = feature_mv_unnorm(result_, [1, mcsize_mlpg + 1], Tmeans, Tstds, np.zeros(result_.shape[0]))
+    result_un = feature_mv_unnorm(result_, [1, mcsize_mlpg + 1], Tmeans, Tstds, np.zeros(result_.shape[0]).astype(int))
     sq_Betas_un = feature_mv_unnorm(sq_Betas, [1, mcsize_mlpg + 1], np.zeros(sq_Betas.shape[1]), 1 / Tstds,
-                                    np.zeros(sq_Betas.shape[0]))
+                                    np.zeros(sq_Betas.shape[0]).astype(int))
     Betas_t = 1 / np.tile(Tstds ** 2, (result_un.shape[0], 1))
     Betas_net = sq_Betas_un ** 2
 
@@ -95,3 +96,14 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
     result_mlpg[np.squeeze(in_uv) == 1, 0] = 0
 
     return result_mlpg
+
+
+if __name__ == "__main__":
+
+
+    Nwin = 300
+    Nfeat = 61
+
+    x_in = np.random.randn(Nwin, Nfeat)
+
+    run_mlpg_regression(x_in, statsdir='model_saves/ST_STATS_mlpg.npy', savedir='model_saves/theta_last_mlpg.dat')
