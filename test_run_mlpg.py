@@ -74,7 +74,7 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
     print('output feature shape before mlpg:', result_.shape)
     print('sq_Betas feature shape:', sq_Betas.shape)
 
-    cprint('r', ' time: %f seconds\n' % (toc - tic))
+    cprint('r', 'net done: time: %f seconds\n' % (toc - tic))
 
     # Un-norm features without setting null f0
     # TODO: dont apply derivatives to F0
@@ -91,7 +91,8 @@ def run_mlpg_regression(x_in, statsdir, savedir='model_saves/theta_best_mlpg.dat
     result_mlpg[np.squeeze(in_uv) == 1, 0] = 0
 
     print('out features: %s' % str(result_mlpg.shape))
-
+    toc1 = time.time()
+    cprint('r', 'mlpg done: time: %f seconds\n' % (toc1 - tic))
     return result_mlpg
 
 
