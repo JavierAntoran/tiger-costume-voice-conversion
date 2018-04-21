@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 import pyaudio
 import numpy as np
 import thread, time
@@ -13,7 +13,6 @@ from src.regression_utils import *
 from models.BaseNet import Net
 from models.ff_probabilistic_mlpg import Nloss_GD, ff_mlpg
 
-#N_t = 0.020
 #w_ratio = 4;
 #M_t = N_t/w_ratio;
 
@@ -24,7 +23,7 @@ tape = np.zeros(RATE* TAPE_LENGTH)
 
 f0_floor = 71.0
 f0_ceil = 800.0
-frame_period = 5
+frame_period = 5.0
 
 #DIO
 channels_in_octave = 2.0
@@ -129,7 +128,6 @@ if __name__=="__main__":
     print("Audio acquired")
     #x=tape/2**16
     #x=np.trim_zeros(x)
-    print(x.shape)
     #del tape
     #print("Begin stonemask ...")
     print("Begin harvest ...")
@@ -143,6 +141,7 @@ if __name__=="__main__":
     sp_x = pw.cheaptrick(x, f0_x, tp_x, RATE, q1, f0_floor, fft_size)
     print("Begin d4c ...")
     ap_x = pw.d4c(x, f0_x, tp_x, RATE, threshold, fft_size)
+
     lz, tz,f0_x, sp_x, ap_x = trim_zeros_frames(f0_x,sp_x, ap_x, 0.7)
     
     uv = (f0_x == 0).astype(int)
@@ -157,12 +156,16 @@ if __name__=="__main__":
     statsdir = 'model_saves/ST_STATS_mlpg.npy'
     savedir = 'model_saves/theta_best_mlpg.dat'
 
+    #hash_md5 = hl.md5()
+    #with open(savedir, "rb") as f:
+    #    for chunk in iter(lambda: f.read(4096), b""):
+    #        hash_md5.update(chunk)
+    #print('theta_best_mlpg: ' + hash_md5.hexdigest())
+
     feature_x = np.concatenate((lf0_x.reshape(len(lf0_x),1), mgc_x),1)
     feature_x[feature_x[:,0] == -1e10] = 0
 
-    feature_x = np.load('./model_saves/benis.npy')
-
-    print("Neural processing? ...")
+    print("Neural processing ...")
     features_y = run_mlpg_regression(feature_x, statsdir = statsdir, savedir=savedir)
 
     lf0_y = np.array(features_y[:,0], order='C')
@@ -171,7 +174,7 @@ if __name__=="__main__":
     mgc_y = np.array(features_y[:,1:], order='C')
 
     print("Undo f0 transformation ...")
-    f0_y = tofrequency(lf0_x)
+    f0_y = tofrequency(lf0_y)
     print("Undo bap transformation ...")
     ap_y = pysptk.conversion.mc2sp(bap_x.astype(np.float64), alpha=alpha, fftlen = fft_size)
     print("Undo mgc transformation ...")

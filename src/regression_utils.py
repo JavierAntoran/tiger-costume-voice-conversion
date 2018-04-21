@@ -146,60 +146,60 @@ def wvec_mv_unnorm(samples, cutoffs, means, stds):
 def feature_mv_norm(samples, cutoffs, means=None, stds=None):
     cut_f0 = cutoffs[0]
     cut_sp = cutoffs[1]
-
+    
     f0 = samples[:, 0:cut_f0]
-    sp = samples[:, cut_f0:cut_sp + 1]
-
-    uv = np.zeros(f0.shape, dtype=bool)
-    uv[f0 is 0.0] = True
+    sp = samples[:, cut_f0:cut_sp+1]
+    
+    uv = (f0 == 0).astype(int)
 
     if means is not None:
         f0_mean = means[:cut_f0]
-        sp_mean = means[cut_f0:cut_sp + 1]
+        sp_mean = means[cut_f0:cut_sp+1]
     else:
-        f0_mean = np.mean(f0[np.logical_not(uv)])
+        f0_mean = np.mean(f0[(uv==0)])
         sp_mean = np.mean(sp, axis=0)
-
+    
     f0_mn = f0 - f0_mean
-    f0_mn[uv] = 0.0;
-
+    f0_mn[uv == 1] = 0.0;
+    
     sp_mn = sp - sp_mean
-
+    
     if stds is not None:
         f0_std = stds[:cut_f0]
-        sp_std = stds[cut_f0:cut_sp + 1]
+        sp_std = stds[cut_f0:cut_sp+1]
     else:
-        f0_std = np.std(f0_mn[np.logical_not(uv)])
+        f0_std = np.std(f0_mn[(uv==0)])
         sp_std = np.std(sp_mn, axis=0)
-
+    
     if f0_std == 0:
-        f0_std = 1
+      f0_std = 1
     f0_mvn = f0_mn / f0_std
-
-    sp_std[sp_std == 0] = 1
+    
+    sp_std[sp_std==0] = 1
     sp_mvn = sp_mn / sp_std
-
+    
+       
     out = np.concatenate((f0_mvn, sp_mvn), axis=1)
-    means = np.concatenate((np.reshape(f0_mean, 1), np.transpose(sp_mean)))
-    stds = np.concatenate((np.reshape(f0_std, 1), np.transpose(sp_std)))
+    means = np.concatenate((np.reshape(f0_mean,1), np.transpose(sp_mean)))
+    stds = np.concatenate((np.reshape(f0_std,1), np.transpose(sp_std)))
     return out, means, stds, uv
-
 
 def feature_mv_unnorm(samples, cutoffs, means, stds, uv):
     cut_f0 = cutoffs[0]
     cut_sp = cutoffs[1]
-
+    
     f0_mvn = samples[:, :cut_f0]
-    sp_mvn = samples[:, cut_f0:cut_sp + 1]
-
+    sp_mvn = samples[:, cut_f0:cut_sp+1]
+    
+    
     f0_mn = f0_mvn * stds[:cut_f0]
-    sp_mn = sp_mvn * stds[cut_f0:cut_sp + 1]
-
+    sp_mn = sp_mvn * stds[cut_f0:cut_sp+1]
+    
     f0 = f0_mn + means[:cut_f0]
-    sp = sp_mn + means[cut_f0:cut_sp + 1]
-
-    f0[uv] = 0.0
-
+    sp = sp_mn + means[cut_f0:cut_sp+1]
+    
+    f0[uv==1] = 0
+    
     out = np.concatenate((f0, sp), axis=1)
     return out
 

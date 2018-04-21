@@ -67,17 +67,21 @@ class ff_mlpg(nn.Module):
         super(ff_mlpg, self).__init__()
         self.output_dim = output_dim
         self.fc1 = nn.Linear(input_dim, n_hid)
-        self.fc2 = nn.Linear(n_hid, int(1.5 * n_hid))
-        self.fc3 = nn.Linear(int(1.5 * n_hid), 2 * n_hid)
-        self.fc4 = nn.Linear(2 * n_hid, output_dim)
-        self.drop = nn.Dropout(p=0.2, inplace=False)
+        self.fc2 = nn.Linear(n_hid, int(1.5*n_hid))
+        self.fc3 = nn.Linear(int(1.5*n_hid), 2*n_hid)
+        self.fc4 = nn.Linear(2*n_hid, output_dim)
+        self.drop = nn.Dropout(p=0, inplace=False)
+        self.bn1 = nn.BatchNorm1d(n_hid)
+        self.bn2 = nn.BatchNorm1d(int(1.5*n_hid))
+        self.bn3 = nn.BatchNorm1d(2*n_hid)
+        
 
         # choose your non linearity
-        # self.act = nn.Tanh()
-        # self.act = nn.Sigmoid()
+        #self.act = nn.Tanh()
+        #self.act = nn.Sigmoid()
         self.act = nn.ReLU(inplace=True)
-        # self.act = nn.ELU(inplace=True)
-        # self.act = nn.SELU(inplace=True)
+        #self.act = nn.ELU(inplace=True)
+        #self.act = nn.SELU(inplace=True)
 
     def forward(self, x):
         # -----------------
@@ -85,23 +89,26 @@ class ff_mlpg(nn.Module):
         # -----------------
         x = self.act(x)
         # -----------------
+        x = self.bn1(x)
         x = self.drop(x)
         # -----------------
         x = self.fc2(x)
         # -----------------
         x = self.act(x)
         # -----------------
+        x = self.bn2(x)
         x = self.drop(x)
         # -----------------
         x = self.fc3(x)
         # -----------------
+        x = self.bn3(x)
         x = self.drop(x)
         # -----------------
         x = self.act(x)
         # -----------------
         y = self.fc4(x)
-
-        out = y[:, :int(self.output_dim / 2)]
-        sq_Beta = y[:, int(self.output_dim / 2):]
-
+        
+        out = y[:, :int(self.output_dim/2)]
+        sq_Beta = y[:, int(self.output_dim/2):]
+        
         return out, sq_Beta

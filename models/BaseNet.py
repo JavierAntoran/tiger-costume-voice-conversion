@@ -114,26 +114,28 @@ class Net(BaseNet):
         return loss.data[0]
 
     def eval(self, x, y, train=False):
-        x, y = to_variable(var=(x, y), volatile=True, cuda=self.cuda)
+	with torch.no_grad():
+            x, y = to_variable(var=(x, y), volatile=True, cuda=self.cuda)
 
-        if self.name == 'ff_mlpg':
-            out, sq_Beta = self.model(x)
-            loss = self.J(out, y, sq_Beta)
-            return loss.data[0], sq_Beta.abs().mean().data
-        elif self.name == 'feed_forward':
-            out = self.model(x)
-            loss = self.J(out, y)
-        else:
-            out = self.model(x)
-            loss = self.J(out, y)
-        return loss.data[0]
+            if self.name == 'ff_mlpg':
+                out, sq_Beta = self.model(x)
+                loss = self.J(out, y, sq_Beta)
+                return loss.data[0], sq_Beta.abs().mean().data
+            elif self.name == 'feed_forward':
+                out = self.model(x)
+                loss = self.J(out, y)
+            else:
+                out = self.model(x)
+                loss = self.J(out, y)
+            return loss.data[0]
 
     def predict(self, x, train=False):
-        x, = to_variable(var=(x,), volatile=True, cuda=self.cuda)
+        with torch.no_grad():
+            x, = to_variable(var=(x,), volatile=False, cuda=self.cuda)
 
-        if self.name == 'ff_mlpg':
-            out, sq_Beta = self.model(x)
-            return out.data, sq_Beta.abs().data
-        else:
-            out = self.model(x)
-            return out.data
+            if self.name == 'ff_mlpg':
+                out, sq_Beta = self.model(x)
+                return out.data, sq_Beta.abs().data
+            else:
+                out = self.model(x)
+                return out.data
