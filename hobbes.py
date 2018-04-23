@@ -7,6 +7,8 @@ import pyworld as pw
 import pysptk
 import sys
 import time
+import sounddevice as sd
+import argparse
 from test_run_mlpg import run_mlpg_regression
 from src.mlpg import *
 from src.regression_utils import *
@@ -118,24 +120,44 @@ def acquire_audio():
 
 
 if __name__=="__main__":
-    #acquire_audio()
-    x,_   = sf.read('./audios/otorrino_10.wav')
-    if x.ndim is 2:
-        x = x[:, 0]
-    x = x.copy(order='C').astype(float)
-    #sf.write("test.wav", tape/2**16, RATE)
-    #np.savetxt("test.out", tape/2**16)
-    print("Audio acquired")
-    #x=tape/2**16
-    #x=np.trim_zeros(x)
-    #del tape
-    #print("Begin stonemask ...")
-    print("Begin harvest ...")
-    f0_x, tp_x = pw.harvest(x, RATE,f0_floor, f0_ceil, frame_period)
+    parser = argparse.ArgumentParser(description='TigerCostume')
 
-#    f0_x, tp_x = pw.dio(x, RATE,f0_floor, f0_ceil, channels_in_octave, 
-#                                frame_period, speed, allowed_range)
-#    f0_x = pw.stonemask(x, f0_x, tp_x, RATE)
+    parser.add_argument('-dn','--dataset-name', action="store")
+    parser.add_argument('-ts', action="store_true")
+    parser.add_argument('-ts_num', action="store", type=int)
+    parser.add_argument('--harvest', action="store_true", default=False)
+
+    opts = parser.parse_args()
+
+    out_filename = ''
+    if not opts.dataset_name:
+        acquire_audio()
+        tape = tape/np.max(np.abs(tape))
+        sf.write("test.wav", tape/2**15, RATE)
+        print("Audio acquired")
+        x=tape/2**15
+        x=np.trim_zeros(x)
+        del tape
+        out_filename += 'acq_'
+    else:
+        print("Loading file " + './audios/'+opts.dataset_name+'_'+str(opts.ts_num)+'.wav')
+        x,_   = sf.read('./audios/'+opts.dataset_name+'_'+str(opts.ts_num)+'.wav')
+    
+        if x.ndim is 2:
+            x = x[:, 0]
+        x = x.copy(order='C').astype(float)
+        x=np.trim_zeros(x)
+        out_filename += opts.dataset_name+'_'+str(opts.ts_num)+'_'
+        
+    if opts.harvest:    
+        print("Begin harvest ...")
+        f0_x, tp_x = pw.harvest(x, RATE,f0_floor, f0_ceil, frame_period)
+        out_filename += 'harvest'
+    else :
+        print("Begin stonemask ...")
+        f0_x, tp_x = pw.dio(x, RATE,f0_floor, f0_ceil, channels_in_octave,  frame_period, speed, allowed_range)
+        f0_x = pw.stonemask(x, f0_x, tp_x, RATE)
+        out_filename += 'dio'
     
     print("Begin cheaptrick ...")
     sp_x = pw.cheaptrick(x, f0_x, tp_x, RATE, q1, f0_floor, fft_size)
@@ -179,7 +201,8 @@ if __name__=="__main__":
     ap_y = pysptk.conversion.mc2sp(bap_x.astype(np.float64), alpha=alpha, fftlen = fft_size)
     print("Undo mgc transformation ...")
     sp_y = pysptk.conversion.mc2sp(mgc_y.astype(np.float64),alpha=alpha, fftlen = fft_size)
-
+    
+    out_filename += '.wav'
     y = pw.synthesize(f0_y, sp_y, ap_y, RATE, frame_period)
-    sf.write("synth.wav", y, RATE)
+    sf.write(out_filename, y, RATE)
     print("DONE")
