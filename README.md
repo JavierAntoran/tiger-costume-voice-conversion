@@ -9,7 +9,7 @@ of two parts. A voice alignment algorithm and a regression model.
 Voice conversion is the task of modifying the speech signal of one speaker
 (source speaker) so that it sounds as if it had been pronounced by a different speaker (target speaker).
 
-<img src="images/overview_schematic.png" width="300" height="250" />
+<img src="images/overview_schematic.png" width="320" height="260" />
 
 We use a parametric method for voice generation. Raw waveforms are converted to
 fundamental frequency (f0), spectral envelope coeficients (SP) and band aperiodicity coeficients (AP) for processing
@@ -18,7 +18,7 @@ using SPTK. In order to regenerate synthetic waveforms, these conversions
 are inverted. Note that this is a lossy process.
 A 25ms window is used for utterance allignment. A 5ms window is used for waveform generation.
 
-<img src="images/waveforms.png" width="800" height="175" />
+<img src="images/waveforms.png" width="900" height="200" />
 
 In order to build a training set, we use  . We allign these utterances, frame
 by frame, using a modified version of the Dinamic Time Warping (DTW) algorithm.
@@ -33,7 +33,9 @@ For a more in depth overview see the project <a href="slides.pdf" download>slide
 
 ## Alignment
 
-<img src="images/generate_train_data.png" width="400" height="200" />
+<img src="images/generate_train_data.png" width="500" height="250" />
+
+<img src="images/fo_alignment.png" width="600" height="400" />
 
 We do this in the [Dataset_Analysis.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Dataset%20Analysis.ipynb) Notebook.
 
@@ -42,6 +44,10 @@ We do this in the [Dataset_Analysis.ipynb](https://github.com/JavierAntoran/tige
 This is shown in the [Run_Models.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Run_Models.ipynb) Notebook.
 
 ## Running the voice conversion
+
+```bash
+python hobbes.py
+```
 
 
 ## Other resources
