@@ -39,7 +39,7 @@ For a more in depth overview see the project <a href="slides.pdf" download>slide
 
 We do this in the [Dataset_Analysis.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Dataset%20Analysis.ipynb) Notebook.
 
-Note that you will have to run the notebook yourself as plotly plots are not displayed automatically
+Note that you will have to run the notebook yourself as plotly plots are not displayed automatically.
 ## Model Training and MLPG
 
 This is shown in the [Run_Models.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Run_Models.ipynb) Notebook.
