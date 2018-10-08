@@ -18,7 +18,7 @@ using SPTK. In order to regenerate synthetic waveforms, these conversions
 are inverted. Note that this is a lossy process.
 A 25ms window is used for utterance allignment. A 5ms window is used for waveform generation.
 
-<img src="images/waveforms.png" width="900" height="200" />
+<img src="images/waveforms.png" width="1000" height="200" />
 
 In order to build a training set, we use  . We allign these utterances, frame
 by frame, using a modified version of the Dinamic Time Warping (DTW) algorithm.
