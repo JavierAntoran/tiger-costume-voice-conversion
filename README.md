@@ -27,7 +27,7 @@ audio data as input and outputs the converted frame parameters such that the
 reconstructed waveform sounds matches that of the target speaker.
 In this case we do regression frame by frame with a feed forward network.
 However, we use contextual information by including delta features
-(parameter time derivatives) using Maximum Likelihood Parameter Generation MLPG.
+(parameter time derivatives) and using Maximum Likelihood Parameter Generation MLPG.
 
 For a more in depth overview see the project <a href="slides.pdf" download>slides.pdf</a>
 
