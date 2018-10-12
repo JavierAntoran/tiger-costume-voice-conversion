@@ -20,7 +20,7 @@ A 25ms window is used for utterance allignment. A 5ms window is used for wavefor
 
 <img src="images/waveforms.png" width="900" height="200" />
 
-In order to build a training set, we use  . We allign these utterances, frame
+In order to build a training set, we captured ten phrases with about seven words repeated ten times from two speakers using the same microphone. Then we chunk those phrases into words using a silence detector in order to get sufficient samples for each speaker for alignment. We align these utterances, frame
 by frame, using a modified version of the Dinamic Time Warping (DTW) algorithm.
 We use the alligned frames to train a regression model which takes the source speaker's
 audio data as input and outputs the converted frame parameters such that the
@@ -46,9 +46,18 @@ This is shown in the [Run_Models.ipynb](https://github.com/JavierAntoran/tiger-c
 
 Note that you will have to run the notebook yourself as plotly plots are not displayed automatically.
 ## Running the voice conversion
+This script was developed to run in an low resource device like a raspberry pi 3 running raspbian. You must satisfy all the dependencies.
 
 ```bash
-python hobbes.py
+python hobbes.py [-dn  DATASET_NAME -ts_num SAMPLE_NUM] [--harvest]
+
+# Use an audio sample with stonemask algorithm
+# Output conversion will be otorrino_10_dio.wav
+python hobbes.py -dn otorrino -ts_num 10 
+
+# Capture audio from microphone at 16 KHz for 5 seconds and use harvest algorithm
+# Output conversion will be acq_harvest.wav
+python hobbes.py --harvest
 ```
 
 
