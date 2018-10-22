@@ -46,6 +46,13 @@ Note that you will have to run the notebook yourself as plotly plots are not dis
 This is shown in the [Run_Models.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Run_Models.ipynb) Notebook.
 
 Note that you will have to run the notebook yourself as plotly plots are not displayed automatically.
+
+In the following image we show the conversion of a word's fundamental frequency. Although
+the predicted values are temporarily alligned with the source values, they take the shape
+of the target waveform. Additionally, we can see how MLPG uses slope information in order
+to produce a smooth output.\\
+<img src="images/mlpg_f0.png" width="500" height="300" />
+
 ## Running the voice conversion
 This script was developed to run on a low resource device like a raspberry pi 3. All dependencies must be satisfied.
 
