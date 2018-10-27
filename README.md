@@ -5,7 +5,7 @@ with Pytroch and Numpy. It is mainly composed
 of two parts. A voice alignment algorithm and a regression model.
 
 [Voice Conversion](#voice-conversion)\
-[Alignment](#alignment)]\
+[Alignment](#alignment)\
 [Model Training and MLPG](#model-training-and-mlpg)\
 [Running the voice conversion](#running-the-voice-conversion)\
 [Other resources](#other-resources)
