@@ -41,8 +41,15 @@ However, we use contextual information by including delta features
 For a more in depth overview see the project <a href="slides.pdf" download>slides.pdf</a>
 
 ## Alignment
+Feature extraction and training corpus generation chain:
 
 <img src="images/generate_train_data.png" width="500" height="250" />
+
+A plot of the DTW cost matrices of a word, along with the optimal path for alignment.
+
+<img src="images/dtw_plots.png" width="500" height="250" />
+
+Two utterances of same word from different speakers, before and after alignment.
 
 <img src="images/fo_alignment.png" width="700" height="400" />
 
@@ -54,6 +61,12 @@ Note that you will have to run the notebook yourself as plotly plots are not dis
 This is shown in the [Run_Models.ipynb](https://github.com/JavierAntoran/tiger-costume/blob/master/Notebooks/Run_Models.ipynb) Notebook.
 
 Note that you will have to run the notebook yourself as Plotly plots are not displayed automatically.
+
+We use a 3 layered Fully connected neural net that parametrises a diagonal
+covariance Normal distribution (mean and std for each output) over the regression targets. The inputs/targets are
+Generalized Cepstral Coefficients and log f0 with their first and second order
+time gradients. We use the outputted covariance matrix as the uncertainty parameter
+for MLPG. Both inputs and targets are normalized to have 0 mean and unit variance.
 
 In the following image we show the conversion of a word's fundamental frequency. Although
 the predicted values are temporarily aligned with the source values, they take the shape
